@@ -60,7 +60,7 @@ body{
     background: #1e2326
 }
 #header {
-    background: linear-gradient(to top, rgba(30,35,38,.8), rgba(30,35,38,1));
+    background: #252A2E;
     color: white; /* To ensure text visibility against dark background */
     padding: 50px 0;
     text-align: center;
@@ -108,7 +108,7 @@ body{
     display: flex;
     justify-content: end; /* Center SVG horizontally */
     align-items:flex-start; /* Center SVG vertically */
-    margin-top: -500px;
+    margin-top: -550px;
 
 }
 
@@ -150,84 +150,76 @@ svg #Helmet polygon {
     0% { fill: transparent; }
 }
 
-.sobremi{
-    background-color: #1e2326;
-    color: #fff;
-    padding: 50px 20px;
-    margin-top: -500px;
+/* Section Styling */
+.about {
+    padding: 60px 0;
+    position: relative;
+    margin-top: -150px;
 }
-.sobremi .contenido-seccion{
-    max-width: 1100px;
-    margin: auto;
-}
-.sobremi h2{
-    font-size: 48px;
-    font-family: 'Righteous';
-    text-align: center;
-    padding: 20px 0;
 
+.pt-0 {
+    padding-top: 0;
 }
-.sobremi .contenido-seccion p{
-    font: 18px;
-    line-height: 22px;
-    margin-bottom: 20px;
+
+/* Container */
+.container {
+    max-width: 1140px;
+    margin: 0 auto;
+    padding: 0 15px;
 }
-.sobremi .contenido-seccion p span{
-    color: #EF0C0C;
-    font-weight: bold;
-}
-.sobremi .fila{
+
+/* About Wrapper */
+.about {
     display: flex;
-}
-.sobremi .fila .col
-{
-    width: 50%;
-}
-.sobremi .fila .col h3{
-    font-size: 28px;
-    font-family: 'Righteous';
-    margin-bottom: 25px;
-}
-.sobremi .fila .col ul{
-    list-style: none;
-}
-.sobremi .fila .col ul li{
-    margin: 12px 0;
-}
-.sobremi .fila .col ul li strong{
-    display: inline-block;
-    color: #EF0C0C;
-    width: 130px;
-}
-.sobremi .fila .col ul li span{
-    background-color: #EF0C0C;
-    padding: 3px;
-    font-weight: bold;
-    border-radius: 5px;
-}
-.sobremi .fila .col .contenedor-intereses{
-    display: flex;
-    flex-wrap: wrap;
-}
-.sobremi .fila .col .contenedor-intereses .interes{
-    width: 100px;
-    height: 100px;
-    background-color: #252A2E;
-    border-radius: 10px;
-    margin: 0 15px 15px 0;
-    display: flex;
-    flex-direction: column;
     align-items: center;
     justify-content: center;
-    transition: .3s;
-}.sobremi .fila .col .contenedor-intereses .interes:hover{
-    background-color: #EF0C0C;
+    flex-wrap: wrap;
+    text-align: left;
 }
-.sobremi .fila .col .contenedor-intereses .interes i{
-    font-size: 30px;
+
+/* About Image Holder */
+.about-img-holder {
+    flex: 1 1 40%;
+    display: flex;
+    justify-content: center;
+    align-items: center; /* Center the image vertically */
+    margin-bottom: 30px;
+}
+
+.about-img {
+    max-width: 100%;
+    border-radius: 50%;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* About Caption */
+.about-caption {
+    flex: 1 1 50%;
+    padding: 20px;
+}
+
+.section-subtitle {
+    font-size: 18px;
+    font-weight: 600;
+    color: #6c757d;
     margin-bottom: 10px;
 }
-.sobremi button{
+
+.section-title {
+    font-size: 36px;
+    font-weight: 700;
+    color: #EF0C0C;
+    margin-bottom: 20px;
+}
+
+.about-caption p {
+    font-size: 16px;
+    line-height: 1.6;
+    color: #fff;
+}
+
+/* Button */
+.btn{
     cursor: pointer;
     background-color: transparent;
     border: 2px solid #fff;
@@ -240,7 +232,7 @@ svg #Helmet polygon {
     position: relative;
     z-index: 10;
 }
-.sobremi button .overlay{
+.btn .overlay{
     position: absolute;
     top: 0;
     left: 0;
@@ -250,9 +242,22 @@ svg #Helmet polygon {
     z-index: -1;
     transition: 1s;
 }
-.sobremi button:hover .overlay{
+.btn:hover .overlay{
     width: 100%;
 }
+
+/* Media Queries for Responsive Design */
+@media (max-width: 768px) {
+    .about {
+        flex-direction: column;
+        text-align: center;
+    }
+
+    .about-caption {
+        padding: 0;
+    }
+}
+
 /* SECCION S K I L L S */
 .skills{
     background-color: #252A2E;
@@ -314,49 +319,49 @@ svg #Helmet polygon {
     font-size: 14px;
 }
 /* Estas clases se agregaran dinamicamente mediante javascript */
-.skills .skill .javascript{
+.skills .skill .AutoCAD{
     width: 0%;
-    animation: 2s javascript forwards;
+    animation: 2s AutoCAD forwards;
 }
-@keyframes javascript {
+@keyframes AutoCAD {
     0%{width: 0%;}
-    100%{width: 75%;}
+    100%{width: 70%;}
 }
 
-.skills .skill .htmlcss{
+.skills .skill .SolidWorks{
     width: 0%;
-    animation: 2s htmlcss forwards;
+    animation: 2s SolidWorks forwards;
 }
-@keyframes htmlcss {
+@keyframes SolidWorks {
     0%{width: 0%;}
-    100%{width: 89%;}
+    100%{width: 50%;}
 }
 
-.skills .skill .photoshop{
+.skills .skill .DraftingDesigning{
     width: 0%;
-    animation: 2s photoshop forwards;
+    animation: 2s DraftingDesigning forwards;
 }
-@keyframes photoshop {
+@keyframes DraftingDesigning {
     0%{width: 0%;}
-    100%{width: 95%;}
+    100%{width:70%;}
 }
 
-.skills .skill .wordpress{
+.skills .skill .ManufacturingProcesses{
     width: 0%;
-    animation: 2s wordpress forwards;
+    animation: 2s ManufacturingProcesses forwards;
 }
-@keyframes wordpress {
+@keyframes ManufacturingProcesses {
     0%{width: 0%;}
-    100%{width: 81%;}
+    100%{width: 60%;}
 }
 
-.skills .skill .drupal{
+.skills .skill .AutomotiveSystems{
     width: 0%;
-    animation: 2s drupal forwards;
+    animation: 2s AutomotiveSystems forwards;
 }
-@keyframes drupal {
+@keyframes AutomotiveSystems {
     0%{width: 0%;}
-    100%{width: 55%;}
+    100%{width: 50%;}
 }
 
 .skills .skill .comunicacion{
@@ -365,7 +370,7 @@ svg #Helmet polygon {
 }
 @keyframes comunicacion {
     0%{width: 0%;}
-    100%{width: 80%;}
+    100%{width: 50%;}
 }
 
 .skills .skill .trabajo{
@@ -377,31 +382,31 @@ svg #Helmet polygon {
     100%{width: 70%;}
 }
 
-.skills .skill .creatividad{
+.skills .skill .Creativite{
     width: 0%;
-    animation: 2s creatividad forwards;
+    animation: 2s Creativite forwards;
 }
-@keyframes creatividad {
+@keyframes Creativite {
     0%{width: 0%;}
-    100%{width: 99%;}
+    100%{width: 60%;}
 }
 
-.skills .skill .dedicacion{
+.skills .skill .Leadership{
     width: 0%;
-    animation: 2s dedicacion forwards;
+    animation: 2s Leadership forwards;
 }
-@keyframes dedicacion {
+@keyframes Leadership {
     0%{width: 0%;}
-    100%{width: 65%;}
+    100%{width: 50%;}
 }
 
-.skills .skill .proyect{
+.skills .skill .ProblemSolving{
     width: 0%;
-    animation: 2s proyect forwards;
+    animation: 2s ProblemSolving forwards;
 }
-@keyframes proyect {
+@keyframes ProblemSolving {
     0%{width: 0%;}
-    100%{width: 94%;}
+    100%{width: 40%;}
 }
 /* SECCION CURRICULUM */
 .curriculum{

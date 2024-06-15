@@ -56,3 +56,31 @@ document.addEventListener("DOMContentLoaded", function() {
         }
     }
 });
+
+
+  //contact form to google sheets
+  const scriptURL = 'https://script.google.com/macros/s/AKfycbyTHERscVVTgtzZwGTdnX1TLdPfKySpTibAALsh1tYVTWuNMKWghDtsL3V-ozHG1QQt/exec'
+  const form = document.forms['contact-form']
+
+
+form.addEventListener('submit', e => {
+  e.preventDefault()
+  fetch(scriptURL, { method: 'POST', body: new FormData(form)})
+    .then(response => console.log('Success!', response))
+    .catch(error => console.error('Error!', error.message))
+
+
+    //alert message enable
+    document.querySelector('.alert').style.display = 'block';
+
+    //remove alert message 
+    setTimeout(() => {
+        document.querySelector('.alert').style.display = 'none';
+
+    }, 3000)
+
+    //reset form 
+        document.getElementsByName("contact-form")[0].reset();
+
+
+})

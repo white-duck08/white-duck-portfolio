@@ -106,10 +106,15 @@ body{
 .right-container {
     flex: 1; /* Take remaining space */
     display: flex;
-    justify-content: end; /* Center SVG horizontally */
-    align-items:flex-start; /* Center SVG vertically */
-    margin-top: -550px;
+    justify-content: flex-end; /* Align SVG to the end horizontally */
+    align-items: flex-start; /* Align SVG to the start vertically */
+    margin-top: -400px;
+}
 
+/* Additional style to reduce the size of the SVG */
+.right-container svg {
+    width: 500px; /* Adjust the width as needed */
+    height: 500px; /* Maintain aspect ratio */
 }
 
 svg {
@@ -651,6 +656,18 @@ a[href^="mailto:"] {
     color: #9900FF;
 }
 
+
+.alert {
+    text-align: center;
+    width: 100%;
+    display: none;
+    font-weight: 500;
+    
+    padding-top: 10px;
+    padding-bottom: 10px;
+    background: #FFD700;
+    color: #EF0C0C;
+}
 
 .contacto{
     background-image: url(img/contact_bg.png);

@@ -36,7 +36,7 @@
 			<div class="header-text">
 				<h1>
 					<p style="color: #FFD700;">Hi, I'm</p>
-					<a href="" class="typewrite" data-period="2000" data-type='[ "Shrestha Roy", "Automobile <BR>Enthusiast", "Aspiring Automobile <BR>Engineer", "An Undergraduate" ]'>
+					<a href="" class="typewrite" data-period="2000" data-type='[ "Shrestha Roy", "Automobile Enthusiast", "Aspiring Automobile Engineer", "An Undergraduate" ]'>
 						<span class="wrap"></span>
 					</a>
 				</h1>
@@ -502,16 +502,18 @@
             <div class="fila">
                 <!-- Formulario -->
                 <div class="col">
-                    <input type="email" placeholder="Email">
-                    <input type="text" placeholder="Name">
-                    <input type="text" placeholder="Subject">
-                    <input type="number" placeholder="Phone">
-                    <textarea name="" id="" cols="30" rows="10" placeholder="Massage"></textarea>
+                    <form name="contact-form" id="contact-form" class="contact">
+                        <div class="alert">Your Message Sent</div>
+                    <input  id="name" name="Name" type="text" placeholder="Name">
+                    <input id="email" name="Email" type="email" placeholder="Email">
+                    <input id="phone" name="Ph-number" type="number" placeholder="Phone">
+                    <input id="subject" name="Subject" type="text" placeholder="Subject">
+                    <textarea name="Message" id="Message" cols="30" rows="10" placeholder="Message"></textarea>
                     <button>
                         send<i class="fa-solid fa-paper-plane"></i>
                         <span class="overlay"></span>
                     </button>
-                </div>
+                </div></form>
                 <!-- Mapa -->
                 <div class="colq">
                     <h1 class="sub-title">Contact</h1>

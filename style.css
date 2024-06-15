@@ -611,7 +611,7 @@ svg #Helmet polygon {
 
 p {
     font-size: 1.2em;
-    color: #00FF41;
+    color: #FFD700;
     margin: 10px 0;
     padding-left: 50px;
 }
@@ -626,7 +626,7 @@ a:hover {
 }
 
 a[href^="mailto:"] {
-    color: #00FF41;
+    color: #FFD700;
 }
 
 .fa-envelope, .fa-phone, .fa-location-dot {

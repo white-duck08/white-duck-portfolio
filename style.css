@@ -568,6 +568,10 @@ svg #Helmet polygon {
     margin: 10px;
     cursor: pointer;
 }
+
+
+
+
 .portfolio .galeria .proyecto img{
     width: 100%;
     display: block;
@@ -860,4 +864,44 @@ footer .arriba{
     .contacto .fila .col{
         width: 100%;
     }
+    
+    .right-container{
+        display: none;
+    }
+
+    .about{
+        margin-top: 10px;
+    }
+
+    .curriculum .fila {
+        display: block; /* Stack the items vertically */
+    }
+
+    .curriculum .fila .col {
+        width: 100%; /* Full width for each item */
+        padding: 0;
+        margin-bottom: 20px;
+    }
+
+    .curriculum .fila .item {
+        margin-right: 0;
+        margin-left: 0;
+        padding-left: 20px; /* Ensure padding is visible */
+        padding-right: 20px; /* Ensure padding is visible */
+    }
+
+    .curriculum .fila .derecha,
+    .curriculum .fila .izquierda .izq{
+        transform: none; /* Remove translations on smaller screens */
+        border: none; /* Remove borders on smaller screens */
+    }
+
+    .curriculum .fila .item .conectori,
+    .curriculum .fila .item .conectord {
+        display: none; /* Hide connectors on small screens */
+    }
+    .curriculum .fila .izq {
+        transform: translateX(5px); /* Move the second card 200px to the left */
+    }
+    
 }

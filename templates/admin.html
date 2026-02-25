@@ -1,0 +1,519 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Admin — ME.Portfolio</title>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:ital,wght@0,300;0,400;0,500;1,300&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet"/>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    :root{--bg:#0d0d0f;--surface:#13131a;--border:#1e1e2a;--text:#e8e8f0;--muted:#5a5a72;--accent:#f97316;--accent2:#42f5c8;--danger:#f54275;--warn:#f5c842;--fh:'Syne',sans-serif;--fm:'DM Mono',monospace;}
+    body{background:var(--bg);color:var(--text);font-family:var(--fm);font-size:13px;line-height:1.6;overflow-x:hidden}
+    ::-webkit-scrollbar{width:4px}::-webkit-scrollbar-track{background:var(--bg)}::-webkit-scrollbar-thumb{background:var(--border)}
+    button,input,select,textarea{font-family:var(--fm)}
+    #loginScreen{display:flex;align-items:center;justify-content:center;min-height:100vh;padding:20px}
+    .login-box{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:48px;width:100%;max-width:400px}
+    .login-logo{font-family:var(--fh);font-size:22px;font-weight:800;margin-bottom:8px}
+    .login-logo span{color:var(--accent)}
+    .login-sub{color:var(--muted);font-size:12px;margin-bottom:32px}
+    .login-err{background:rgba(245,66,117,.1);border:1px solid rgba(245,66,117,.3);color:var(--danger);padding:10px 14px;border-radius:4px;font-size:12px;margin-bottom:16px;display:none}
+    #appShell{display:none;min-height:100vh}
+    .sidebar{position:fixed;top:0;left:0;width:220px;height:100vh;background:var(--surface);border-right:1px solid var(--border);display:flex;flex-direction:column;z-index:50;overflow-y:auto}
+    .sidebar-logo{padding:24px 20px 16px;border-bottom:1px solid var(--border)}
+    .sidebar-logo .name{font-family:var(--fh);font-weight:800;font-size:14px}
+    .sidebar-logo .name span{color:var(--accent)}
+    .sidebar-logo .role{font-size:10px;color:var(--muted);letter-spacing:.08em;text-transform:uppercase;margin-top:2px}
+    .sidebar-nav{padding:16px 0;flex:1}
+    .nav-section{padding:8px 20px 4px;font-size:10px;color:#3a3a50;letter-spacing:.12em;text-transform:uppercase}
+    .nav-item{display:flex;align-items:center;gap:10px;padding:9px 20px;color:var(--muted);font-size:12px;cursor:pointer;transition:all .2s;border-left:2px solid transparent}
+    .nav-item:hover{color:var(--text);background:rgba(255,255,255,.02)}
+    .nav-item.active{color:var(--accent);border-left-color:var(--accent);background:rgba(249,115,22,.04)}
+    .nav-item .nav-icon{font-size:14px;width:18px;text-align:center}
+    .sidebar-footer{padding:16px 20px;border-top:1px solid var(--border)}
+    .logout-btn{width:100%;padding:8px;background:none;border:1px solid var(--border);color:var(--muted);border-radius:4px;font-size:11px;letter-spacing:.06em;text-transform:uppercase;cursor:pointer;transition:all .2s}
+    .logout-btn:hover{border-color:var(--danger);color:var(--danger)}
+    .main-content{margin-left:220px;padding:32px;min-height:100vh}
+    .page{display:none}.page.active{display:block}
+    .page-header{margin-bottom:32px;padding-bottom:20px;border-bottom:1px solid var(--border);display:flex;align-items:flex-start;justify-content:space-between}
+    .page-title{font-family:var(--fh);font-size:24px;font-weight:800;letter-spacing:-.5px}
+    .page-sub{color:var(--muted);font-size:12px;margin-top:4px}
+    .btn{display:inline-flex;align-items:center;gap:7px;padding:9px 18px;font-family:var(--fm);font-size:11px;letter-spacing:.06em;text-transform:uppercase;border-radius:4px;transition:all .2s;cursor:pointer;border:none}
+    .btn-primary{background:var(--accent);color:#000;font-weight:500}.btn-primary:hover{opacity:.88}
+    .btn-ghost{border:1px solid var(--border)!important;color:var(--muted);background:transparent}.btn-ghost:hover{border-color:var(--accent)!important;color:var(--accent)}
+    .btn-danger{background:var(--danger);color:#fff}.btn-danger:hover{opacity:.85}
+    .btn-sm{padding:5px 12px;font-size:10px}
+    .form-group{display:flex;flex-direction:column;gap:6px;margin-bottom:16px}
+    .form-label{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em}
+    .form-input,.form-select,.form-textarea{background:var(--bg);border:1px solid var(--border);color:var(--text);font-family:var(--fm);font-size:13px;padding:10px 14px;border-radius:4px;outline:none;transition:border-color .2s;width:100%}
+    .form-input:focus,.form-select:focus,.form-textarea:focus{border-color:var(--accent)}
+    .form-textarea{resize:vertical;min-height:120px;line-height:1.7}
+    .form-select option{background:var(--surface)}
+    .form-row{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+    .dash-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:16px;margin-bottom:32px}
+    .dash-card{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:24px}
+    .dash-value{font-family:var(--fh);font-size:36px;font-weight:800;color:var(--accent);margin-bottom:4px}
+    .dash-label{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em}
+    .table-wrap{background:var(--surface);border:1px solid var(--border);border-radius:8px;overflow:hidden}
+    table{width:100%;border-collapse:collapse}
+    th{padding:12px 16px;text-align:left;font-size:10px;color:var(--muted);letter-spacing:.1em;text-transform:uppercase;border-bottom:1px solid var(--border);background:rgba(255,255,255,.02)}
+    td{padding:14px 16px;font-size:12px;border-bottom:1px solid var(--border);vertical-align:middle}
+    tr:last-child td{border-bottom:none}
+    tr:hover td{background:rgba(255,255,255,.015)}
+    .td-title{font-family:var(--fh);font-size:14px;font-weight:600;max-width:280px}
+    .td-cat{font-size:10px;padding:3px 8px;border-radius:3px;border:1px solid rgba(249,115,22,.3);color:var(--accent);text-transform:uppercase;letter-spacing:.05em;white-space:nowrap}
+    .td-date{font-size:11px;color:var(--muted);white-space:nowrap}
+    .td-actions{display:flex;gap:6px;justify-content:flex-end}
+    .modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.8);backdrop-filter:blur(8px);z-index:200;align-items:flex-start;justify-content:center;padding:40px 20px;overflow-y:auto}
+    .modal-overlay.open{display:flex}
+    .modal{background:var(--surface);border:1px solid var(--border);border-radius:12px;width:100%;overflow:hidden}
+    .modal-sm{max-width:500px}.modal-md{max-width:660px}
+    .modal-header{display:flex;align-items:center;justify-content:space-between;padding:20px 28px;border-bottom:1px solid var(--border)}
+    .modal-title{font-family:var(--fh);font-size:18px;font-weight:700}
+    .modal-close{background:none;border:1px solid var(--border);color:var(--muted);width:32px;height:32px;border-radius:4px;font-size:16px;cursor:pointer;transition:all .2s;display:flex;align-items:center;justify-content:center}
+    .modal-close:hover{border-color:var(--danger);color:var(--danger)}
+    .modal-body{padding:28px}
+    .modal-footer{display:flex;gap:10px;justify-content:flex-end;padding:20px 28px;border-top:1px solid var(--border)}
+    /* tags input */
+    .tags-input-wrap{background:var(--bg);border:1px solid var(--border);border-radius:4px;padding:8px 10px;display:flex;flex-wrap:wrap;gap:6px;align-items:center;min-height:44px;cursor:text;transition:border-color .2s}
+    .tags-input-wrap:focus-within{border-color:var(--accent)}
+    .tag-pill{display:inline-flex;align-items:center;gap:5px;background:rgba(249,115,22,.1);border:1px solid rgba(249,115,22,.25);color:var(--accent);font-size:10px;padding:2px 8px;border-radius:3px;text-transform:uppercase}
+    .tag-pill button{background:none;border:none;color:var(--accent);cursor:pointer;font-size:12px;line-height:1;padding:0;opacity:.6}
+    .tag-pill button:hover{opacity:1}
+    .tags-bare{background:none;border:none;color:var(--text);font-family:var(--fm);font-size:13px;outline:none;min-width:80px;flex:1}
+    /* toast */
+    #toast{position:fixed;bottom:24px;right:24px;z-index:999;display:flex;flex-direction:column;gap:8px}
+    .toast-item{background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:12px 18px;font-size:12px;display:flex;align-items:center;gap:10px;animation:slideIn .3s ease;min-width:240px}
+    .toast-item.success{border-color:rgba(249,115,22,.3);color:var(--accent)}
+    .toast-item.error{border-color:rgba(245,66,117,.3);color:var(--danger)}
+    .toast-item.info{border-color:rgba(66,245,200,.3);color:var(--accent2)}
+    @keyframes slideIn{from{opacity:0;transform:translateX(20px)}to{opacity:1;transform:translateX(0)}}
+    @media(max-width:768px){.sidebar{display:none}.main-content{margin-left:0}.form-row{grid-template-columns:1fr}}
+  </style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="loginScreen">
+  <div class="login-box">
+    <div class="login-logo"><span>⚙</span> ME.Portfolio</div>
+    <div class="login-sub">Admin Panel — Authorized Access Only</div>
+    <div class="login-err" id="loginErr"></div>
+    <div class="form-group"><label class="form-label">Email</label><input class="form-input" id="loginEmail" type="email" placeholder="you@example.com"/></div>
+    <div class="form-group"><label class="form-label">Password</label><input class="form-input" id="loginPass" type="password" placeholder="••••••••"/></div>
+    <button class="btn btn-primary" style="width:100%;justify-content:center;margin-top:8px" id="loginBtn">Sign In</button>
+  </div>
+</div>
+
+<!-- APP SHELL -->
+<div id="appShell">
+  <div class="sidebar">
+    <div class="sidebar-logo"><div class="name"><span>⚙</span> ME.Portfolio</div><div class="role">Admin Panel</div></div>
+    <nav class="sidebar-nav">
+      <div class="nav-section">Overview</div>
+      <div class="nav-item active" data-page="dashboard"><span class="nav-icon">◈</span> Dashboard</div>
+      <div class="nav-section">Content</div>
+      <div class="nav-item" data-page="profile"><span class="nav-icon">◉</span> Profile</div>
+      <div class="nav-item" data-page="projects"><span class="nav-icon">◻</span> Projects</div>
+      <div class="nav-item" data-page="experience"><span class="nav-icon">⬡</span> Experience</div>
+      <div class="nav-item" data-page="skills"><span class="nav-icon">✦</span> Skills</div>
+      <div class="nav-section">Settings</div>
+      <div class="nav-item" data-page="activity"><span class="nav-icon">⚡</span> Activity</div>
+      <div class="nav-item" data-page="stats"><span class="nav-icon">⚑</span> Eng. Stats</div>
+      <div class="nav-item" data-page="contact"><span class="nav-icon">✉</span> Contact Info</div>
+    </nav>
+    <div class="sidebar-footer"><button class="logout-btn" id="logoutBtn">Sign Out</button></div>
+  </div>
+
+  <div class="main-content">
+    <!-- DASHBOARD -->
+    <div class="page active" id="page-dashboard">
+      <div class="page-header"><div><div class="page-title">Dashboard</div><div class="page-sub">Welcome back, engineer.</div></div><a href="/" target="_blank" class="btn btn-ghost">↗ View Public Site</a></div>
+      <div class="dash-grid" id="dashStats"></div>
+      <div style="color:var(--muted);font-size:12px;padding:20px;background:var(--surface);border:1px solid var(--border);border-radius:8px"><span style="color:var(--accent)">✓</span>&nbsp; All sensitive API calls proxied through Flask — no secrets in browser.</div>
+    </div>
+
+    <!-- PROFILE -->
+    <div class="page" id="page-profile">
+      <div class="page-header"><div><div class="page-title">Profile</div><div class="page-sub">Your hero section and terminal info.</div></div><button class="btn btn-primary" id="saveProfileBtn">Save Profile</button></div>
+      <div style="background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:28px;max-width:640px">
+        <div class="form-row">
+          <div class="form-group"><label class="form-label">Full Name</label><input class="form-input" id="pr-name" placeholder="e.g. Ahmed Hassan"/></div>
+          <div class="form-group"><label class="form-label">Alias (terminal line)</label><input class="form-input" id="pr-alias" placeholder="$ ./engineer --init"/></div>
+        </div>
+        <div class="form-group"><label class="form-label">Bio (hero description)</label><textarea class="form-textarea" id="pr-bio" style="min-height:80px" placeholder="Short description shown below your name…"></textarea></div>
+        <div class="form-group"><label class="form-label">Tagline (contact section)</label><input class="form-input" id="pr-tagline" placeholder="Open to full-time roles and consulting…"/></div>
+        <div class="form-row">
+          <div class="form-group"><label class="form-label">Specialization (terminal)</label><input class="form-input" id="pr-spec" placeholder="CAD · FEA · Manufacturing"/></div>
+          <div class="form-group"><label class="form-label">Tools (terminal)</label><input class="form-input" id="pr-tools" placeholder="SolidWorks  ANSYS  MATLAB"/></div>
+        </div>
+        <div class="form-row">
+          <div class="form-group"><label class="form-label">CV / Resume Link</label><input class="form-input" id="pr-cv" placeholder="https://drive.google.com/…"/></div>
+          <div class="form-group"><label class="form-label">Availability</label>
+            <select class="form-select" id="pr-avail"><option value="true">Open to Work</option><option value="false">Not Available</option></select>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PROJECTS -->
+    <div class="page" id="page-projects">
+      <div class="page-header"><div><div class="page-title">Projects</div><div class="page-sub">Manage your engineering portfolio projects.</div></div><button class="btn btn-primary" id="newProjectBtn">+ Add Project</button></div>
+      <div class="table-wrap"><table><thead><tr><th>Title</th><th>Type</th><th>Tags</th><th>Order</th><th></th></tr></thead><tbody id="projectsTable"></tbody></table></div>
+    </div>
+
+    <!-- EXPERIENCE -->
+    <div class="page" id="page-experience">
+      <div class="page-header"><div><div class="page-title">Experience</div><div class="page-sub">Jobs, internships, and research positions.</div></div><button class="btn btn-primary" id="newExpBtn">+ Add Entry</button></div>
+      <div class="table-wrap"><table><thead><tr><th>Role</th><th>Company</th><th>Period</th><th>Order</th><th></th></tr></thead><tbody id="expTable"></tbody></table></div>
+    </div>
+
+    <!-- SKILLS -->
+    <div class="page" id="page-skills">
+      <div class="page-header"><div><div class="page-title">Skills</div><div class="page-sub">Manage your skill cards.</div></div><button class="btn btn-primary" id="newSkillBtn">+ Add Skill</button></div>
+      <div class="table-wrap"><table><thead><tr><th>Icon</th><th>Name</th><th>Tags</th><th>Order</th><th></th></tr></thead><tbody id="skillsTable"></tbody></table></div>
+    </div>
+
+    <!-- ACTIVITY -->
+    <div class="page" id="page-activity">
+      <div class="page-header"><div><div class="page-title">Activity Feed</div><div class="page-sub">Log design work, fabrication, simulations & updates.</div></div><button class="btn btn-primary" id="newActBtn">+ Log Activity</button></div>
+      <div class="table-wrap"><table><thead><tr><th>Type</th><th>Title</th><th>Note</th><th>Date</th><th>Link</th><th></th></tr></thead><tbody id="actTable"></tbody></table></div>
+    </div>
+
+    <!-- STATS -->
+    <div class="page" id="page-stats">
+      <div class="page-header"><div><div class="page-title">Engineering Stats</div><div class="page-sub">Showcase your numbers — projects completed, years of experience, etc.</div></div><button class="btn btn-primary" id="newStatBtn">+ Add Stat</button></div>
+      <div class="table-wrap"><table><thead><tr><th>Label</th><th>Value</th><th>Detail</th><th>Color</th><th></th></tr></thead><tbody id="statsTable"></tbody></table></div>
+    </div>
+
+    <!-- CONTACT -->
+    <div class="page" id="page-contact">
+      <div class="page-header"><div><div class="page-title">Contact Info</div><div class="page-sub">Update your public contact links.</div></div><button class="btn btn-primary" id="saveContactBtn">Save Changes</button></div>
+      <div style="background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:28px;max-width:560px">
+        <div class="form-group"><label class="form-label">Email</label><input class="form-input" id="c-email" placeholder="you@example.com"/></div>
+        <div class="form-group"><label class="form-label">Phone</label><input class="form-input" id="c-phone" placeholder="+1 234 567 890"/></div>
+        <div class="form-group"><label class="form-label">LinkedIn URL</label><input class="form-input" id="c-linkedin" placeholder="https://linkedin.com/in/username"/></div>
+        <div class="form-group"><label class="form-label">GitHub URL</label><input class="form-input" id="c-github" placeholder="https://github.com/username"/></div>
+        <div class="form-group"><label class="form-label">Twitter / X URL</label><input class="form-input" id="c-twitter" placeholder="https://twitter.com/username"/></div>
+        <div class="form-group"><label class="form-label">Other Link</label><input class="form-input" id="c-other" placeholder="https://…"/></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<!-- PROJECT MODAL -->
+<div class="modal-overlay" id="projectModal">
+  <div class="modal modal-md">
+    <div class="modal-header"><span class="modal-title" id="projectModalTitle">New Project</span><button class="modal-close" data-close="projectModal">✕</button></div>
+    <div class="modal-body">
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">Title</label><input class="form-input" id="p-title" placeholder="e.g. Turbine Blade FEA Optimization"/></div>
+        <div class="form-group"><label class="form-label">Type</label>
+          <select class="form-select" id="p-type"><option>Design</option><option>FEA / Simulation</option><option>Manufacturing</option><option>Research</option><option>CAD Model</option><option>Other</option></select>
+        </div>
+      </div>
+      <div class="form-group"><label class="form-label">Description</label><textarea class="form-textarea" id="p-desc" placeholder="Describe the project, problem solved, methods used…"></textarea></div>
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">Link (optional)</label><input class="form-input" id="p-link" placeholder="https://github.com/…"/></div>
+        <div class="form-group"><label class="form-label">Display Order</label><input class="form-input" id="p-order" type="number" placeholder="1"/></div>
+      </div>
+      <div class="form-group"><label class="form-label">Tags (press Enter to add)</label>
+        <div class="tags-input-wrap" id="p-tags-wrap"><input class="tags-bare" id="p-tags-input" placeholder="SolidWorks, ANSYS, MATLAB…"/></div>
+      </div>
+    </div>
+    <div class="modal-footer"><button class="btn btn-ghost" data-close="projectModal">Cancel</button><button class="btn btn-primary" id="saveProjectBtn">Save Project</button></div>
+  </div>
+</div>
+
+<!-- EXPERIENCE MODAL -->
+<div class="modal-overlay" id="expModal">
+  <div class="modal modal-md">
+    <div class="modal-header"><span class="modal-title" id="expModalTitle">New Experience</span><button class="modal-close" data-close="expModal">✕</button></div>
+    <div class="modal-body">
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">Role / Title</label><input class="form-input" id="e-role" placeholder="e.g. Mechanical Design Engineer"/></div>
+        <div class="form-group"><label class="form-label">Company</label><input class="form-input" id="e-company" placeholder="e.g. Siemens AG"/></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">Period</label><input class="form-input" id="e-period" placeholder="Jan 2022 — Dec 2023"/></div>
+        <div class="form-group"><label class="form-label">Display Order</label><input class="form-input" id="e-order" type="number" placeholder="1"/></div>
+      </div>
+      <div class="form-group"><label class="form-label">Description</label><textarea class="form-textarea" id="e-desc" placeholder="Describe your responsibilities and achievements…"></textarea></div>
+    </div>
+    <div class="modal-footer"><button class="btn btn-ghost" data-close="expModal">Cancel</button><button class="btn btn-primary" id="saveExpBtn">Save Experience</button></div>
+  </div>
+</div>
+
+<!-- SKILL MODAL -->
+<div class="modal-overlay" id="skillModal">
+  <div class="modal modal-sm">
+    <div class="modal-header"><span class="modal-title" id="skillModalTitle">New Skill</span><button class="modal-close" data-close="skillModal">✕</button></div>
+    <div class="modal-body">
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">Icon (emoji)</label><input class="form-input" id="s-icon" placeholder="⚙"/></div>
+        <div class="form-group"><label class="form-label">Name</label><input class="form-input" id="s-name" placeholder="e.g. SolidWorks"/></div>
+      </div>
+      <div class="form-group"><label class="form-label">Description</label><textarea class="form-textarea" id="s-desc" style="min-height:80px" placeholder="Brief description of this skill area…"></textarea></div>
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">Display Order</label><input class="form-input" id="s-order" type="number" placeholder="1"/></div>
+      </div>
+      <div class="form-group"><label class="form-label">Tags (press Enter)</label>
+        <div class="tags-input-wrap" id="s-tags-wrap"><input class="tags-bare" id="s-tags-input" placeholder="CAD, 3D Modeling…"/></div>
+      </div>
+    </div>
+    <div class="modal-footer"><button class="btn btn-ghost" data-close="skillModal">Cancel</button><button class="btn btn-primary" id="saveSkillBtn">Save Skill</button></div>
+  </div>
+</div>
+
+<!-- ACTIVITY MODAL -->
+<div class="modal-overlay" id="actModal">
+  <div class="modal modal-sm">
+    <div class="modal-header"><span class="modal-title" id="actModalTitle">Log Activity</span><button class="modal-close" data-close="actModal">✕</button></div>
+    <div class="modal-body">
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">Type</label>
+          <select class="form-select" id="a-type"><option value="design">Design</option><option value="fab">Fabrication</option><option value="sim">Simulation</option><option value="custom">Custom Update</option></select>
+        </div>
+        <div class="form-group"><label class="form-label">Date</label><input class="form-input" id="a-date" type="date"/></div>
+      </div>
+      <div class="form-group"><label class="form-label">Title</label><input class="form-input" id="a-title" placeholder="e.g. Completed FEA of bracket assembly"/></div>
+      <div class="form-group"><label class="form-label">Note (optional)</label><input class="form-input" id="a-note" placeholder="Short note…"/></div>
+      <div class="form-group"><label class="form-label">Link (optional)</label><input class="form-input" id="a-link" placeholder="https://…"/></div>
+    </div>
+    <div class="modal-footer"><button class="btn btn-ghost" data-close="actModal">Cancel</button><button class="btn btn-primary" id="saveActBtn">Save Activity</button></div>
+  </div>
+</div>
+
+<!-- STAT MODAL -->
+<div class="modal-overlay" id="statModal">
+  <div class="modal modal-sm">
+    <div class="modal-header"><span class="modal-title" id="statModalTitle">New Stat</span><button class="modal-close" data-close="statModal">✕</button></div>
+    <div class="modal-body">
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">Label</label><input class="form-input" id="st-label" placeholder="e.g. Projects Completed"/></div>
+        <div class="form-group"><label class="form-label">Value</label><input class="form-input" id="st-value" placeholder="e.g. 24+"/></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">Detail</label><input class="form-input" id="st-detail" placeholder="e.g. across 5 industries"/></div>
+        <div class="form-group"><label class="form-label">Color (hex, optional)</label><input class="form-input" id="st-color" placeholder="#f97316"/></div>
+      </div>
+    </div>
+    <div class="modal-footer"><button class="btn btn-ghost" data-close="statModal">Cancel</button><button class="btn btn-primary" id="saveStatBtn">Save Stat</button></div>
+  </div>
+</div>
+
+<script>
+const SUPABASE_URL      = "{{ supabase_url }}";
+const SUPABASE_ANON_KEY = "{{ supabase_anon_key }}";
+const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+// ── AUTH ──
+document.getElementById('loginBtn').addEventListener('click', async () => {
+  const email = document.getElementById('loginEmail').value.trim();
+  const pass  = document.getElementById('loginPass').value;
+  const err   = document.getElementById('loginErr');
+  err.style.display = 'none';
+  const { error } = await sb.auth.signInWithPassword({ email, password: pass });
+  if (error) { err.textContent = error.message; err.style.display = 'block'; return; }
+  showApp();
+});
+document.getElementById('loginPass').addEventListener('keydown', e => { if (e.key === 'Enter') document.getElementById('loginBtn').click(); });
+document.getElementById('logoutBtn').addEventListener('click', async () => { await sb.auth.signOut(); location.reload(); });
+
+async function checkAuth() {
+  const { data: { session } } = await sb.auth.getSession();
+  if (session) showApp(); 
+}
+
+function showApp() {
+  document.getElementById('loginScreen').style.display = 'none';
+  document.getElementById('appShell').style.display = 'block';
+  loadDashboard(); loadProfileForm(); loadProjectsTable(); loadExpTable(); loadSkillsTable(); loadActTable(); loadStatsTable(); loadContactForm();
+}
+
+checkAuth();
+
+// ── NAVIGATION ──
+document.querySelectorAll('.nav-item').forEach(item => {
+  item.addEventListener('click', () => {
+    document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    item.classList.add('active');
+    document.getElementById('page-' + item.dataset.page).classList.add('active');
+  });
+});
+
+// ── TOAST ──
+function toast(msg, type = 'success') {
+  const t = document.createElement('div');
+  t.className = 'toast-item ' + type;
+  t.innerHTML = (type === 'success' ? '✓' : type === 'error' ? '✗' : 'ℹ') + ' ' + msg;
+  document.getElementById('toast').appendChild(t);
+  setTimeout(() => t.remove(), 3500);
+}
+
+// ── MODALS ──
+function openModal(id) { document.getElementById(id).classList.add('open'); }
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+document.querySelectorAll('.modal-close,[data-close]').forEach(btn => btn.addEventListener('click', () => closeModal(btn.dataset.close || btn.closest('.modal-overlay').id)));
+document.querySelectorAll('.modal-overlay').forEach(ov => ov.addEventListener('click', e => { if (e.target === ov) closeModal(ov.id); }));
+
+// ── TAGS INPUT ──
+function initTagsInput(wrapId, inputId) {
+  const wrap = document.getElementById(wrapId), inp = document.getElementById(inputId);
+  wrap.addEventListener('click', () => inp.focus());
+  inp.addEventListener('keydown', e => {
+    if ((e.key === 'Enter' || e.key === ',') && inp.value.trim()) {
+      e.preventDefault(); addTag(wrapId, inp.value.trim()); inp.value = '';
+    }
+    if (e.key === 'Backspace' && !inp.value) {
+      const pills = wrap.querySelectorAll('.tag-pill');
+      if (pills.length) pills[pills.length - 1].remove();
+    }
+  });
+}
+function addTag(wrapId, text) {
+  const wrap = document.getElementById(wrapId), inp = wrap.querySelector('.tags-bare');
+  const pill = document.createElement('span'); pill.className = 'tag-pill';
+  pill.innerHTML = text + '<button type="button">×</button>';
+  pill.querySelector('button').addEventListener('click', () => pill.remove());
+  wrap.insertBefore(pill, inp);
+}
+function getTags(wrapId) { return [...document.getElementById(wrapId).querySelectorAll('.tag-pill')].map(p => p.textContent.replace('×', '').trim()); }
+function setTags(wrapId, tags) {
+  const wrap = document.getElementById(wrapId);
+  wrap.querySelectorAll('.tag-pill').forEach(p => p.remove());
+  tags.forEach(t => addTag(wrapId, t));
+}
+initTagsInput('p-tags-wrap', 'p-tags-input');
+initTagsInput('s-tags-wrap', 's-tags-input');
+
+// ── DELETE ──
+async function deleteRow(table, id, reload) {
+  if (!confirm('Delete this item?')) return;
+  const { error } = await sb.from(table).delete().eq('id', id);
+  if (error) { toast('Error: ' + error.message, 'error'); return; }
+  toast('Deleted', 'success'); reload(); loadDashboard();
+}
+
+// ── DASHBOARD ──
+async function loadDashboard() {
+  const tables = ['projects', 'experience', 'skills', 'stats', 'activity'];
+  const counts = await Promise.all(tables.map(t => sb.from(t).select('*', { count: 'exact', head: true })));
+  const labels = ['Projects', 'Experience', 'Skills', 'Stats', 'Activities'];
+  document.getElementById('dashStats').innerHTML = counts.map((r, i) =>
+    `<div class="dash-card"><div class="dash-value">${r.count ?? 0}</div><div class="dash-label">${labels[i]}</div></div>`
+  ).join('');
+}
+
+// ── PROFILE ──
+async function loadProfileForm() {
+  const { data } = await sb.from('profile').select('*').limit(1).maybeSingle();
+  if (!data) return;
+  document.getElementById('pr-name').value = data.name || '';
+  document.getElementById('pr-alias').value = data.alias || '';
+  document.getElementById('pr-bio').value = data.bio || '';
+  document.getElementById('pr-tagline').value = data.tagline || '';
+  document.getElementById('pr-spec').value = data.specialization || '';
+  document.getElementById('pr-tools').value = data.tools || '';
+  document.getElementById('pr-cv').value = data.cv_link || '';
+  document.getElementById('pr-avail').value = data.availability !== false ? 'true' : 'false';
+}
+document.getElementById('saveProfileBtn').addEventListener('click', async () => {
+  const payload = {
+    name: document.getElementById('pr-name').value.trim(),
+    alias: document.getElementById('pr-alias').value.trim(),
+    bio: document.getElementById('pr-bio').value.trim(),
+    tagline: document.getElementById('pr-tagline').value.trim(),
+    specialization: document.getElementById('pr-spec').value.trim(),
+    tools: document.getElementById('pr-tools').value.trim(),
+    cv_link: document.getElementById('pr-cv').value.trim(),
+    availability: document.getElementById('pr-avail').value === 'true',
+  };
+  const { data: existing } = await sb.from('profile').select('id').limit(1).maybeSingle();
+  const { error } = existing
+    ? await sb.from('profile').update(payload).eq('id', existing.id)
+    : await sb.from('profile').insert(payload);
+  if (error) { toast('Error: ' + error.message, 'error'); return; }
+  toast('Profile saved', 'success');
+});
+
+// ── PROJECTS ──
+let projEditing = null;
+async function loadProjectsTable() {
+  const { data } = await sb.from('projects').select('*').order('display_order');
+  const tb = document.getElementById('projectsTable');
+  if (!data?.length) { tb.innerHTML = '<tr><td colspan="5" style="text-align:center;color:var(--muted);padding:40px">No projects yet.</td></tr>'; return; }
+  tb.innerHTML = data.map(p => `<tr><td class="td-title">${p.title}</td><td><span class="td-cat">${p.type || 'Project'}</span></td><td>${(p.tags || []).slice(0, 3).map(t => `<span class="td-cat" style="margin-right:4px">${t}</span>`).join('')}</td><td class="td-date">${p.display_order || '—'}</td><td><div class="td-actions"><button class="btn btn-ghost btn-sm" onclick="editProject('${p.id}')">Edit</button><button class="btn btn-danger btn-sm" onclick="deleteRow('projects','${p.id}',loadProjectsTable)">Del</button></div></td></tr>`).join('');
+}
+document.getElementById('newProjectBtn').addEventListener('click', () => { projEditing = null; document.getElementById('projectModalTitle').textContent = 'New Project'; ['p-title', 'p-desc', 'p-link'].forEach(id => document.getElementById(id).value = ''); document.getElementById('p-type').value = 'Design'; document.getElementById('p-order').value = ''; setTags('p-tags-wrap', []); openModal('projectModal'); });
+async function editProject(id) { const { data } = await sb.from('projects').select('*').eq('id', id).single(); if (!data) return; projEditing = id; document.getElementById('projectModalTitle').textContent = 'Edit Project'; document.getElementById('p-title').value = data.title; document.getElementById('p-type').value = data.type || 'Design'; document.getElementById('p-desc').value = data.description || ''; document.getElementById('p-link').value = data.link || ''; document.getElementById('p-order').value = data.display_order || ''; setTags('p-tags-wrap', data.tags || []); openModal('projectModal'); }
+document.getElementById('saveProjectBtn').addEventListener('click', async () => { const title = document.getElementById('p-title').value.trim(); if (!title) { toast('Title required', 'error'); return; } const payload = { title, type: document.getElementById('p-type').value, description: document.getElementById('p-desc').value.trim(), link: document.getElementById('p-link').value.trim(), display_order: parseInt(document.getElementById('p-order').value) || 0, tags: getTags('p-tags-wrap') }; const { error } = projEditing ? await sb.from('projects').update(payload).eq('id', projEditing) : await sb.from('projects').insert(payload); if (error) { toast('Error: ' + error.message, 'error'); return; } toast('Project saved', 'success'); closeModal('projectModal'); loadProjectsTable(); loadDashboard(); });
+
+// ── EXPERIENCE ──
+let expEditing = null;
+async function loadExpTable() {
+  const { data } = await sb.from('experience').select('*').order('display_order');
+  const tb = document.getElementById('expTable');
+  if (!data?.length) { tb.innerHTML = '<tr><td colspan="5" style="text-align:center;color:var(--muted);padding:40px">No experience yet.</td></tr>'; return; }
+  tb.innerHTML = data.map(e => `<tr><td class="td-title">${e.role}</td><td style="color:var(--accent);font-size:12px">${e.company || '—'}</td><td class="td-date">${e.period || '—'}</td><td class="td-date">${e.display_order || '—'}</td><td><div class="td-actions"><button class="btn btn-ghost btn-sm" onclick="editExp('${e.id}')">Edit</button><button class="btn btn-danger btn-sm" onclick="deleteRow('experience','${e.id}',loadExpTable)">Del</button></div></td></tr>`).join('');
+}
+document.getElementById('newExpBtn').addEventListener('click', () => { expEditing = null; document.getElementById('expModalTitle').textContent = 'New Experience'; ['e-role', 'e-company', 'e-period', 'e-desc'].forEach(id => document.getElementById(id).value = ''); document.getElementById('e-order').value = ''; openModal('expModal'); });
+async function editExp(id) { const { data } = await sb.from('experience').select('*').eq('id', id).single(); if (!data) return; expEditing = id; document.getElementById('expModalTitle').textContent = 'Edit Experience'; document.getElementById('e-role').value = data.role || ''; document.getElementById('e-company').value = data.company || ''; document.getElementById('e-period').value = data.period || ''; document.getElementById('e-desc').value = data.description || ''; document.getElementById('e-order').value = data.display_order || ''; openModal('expModal'); }
+document.getElementById('saveExpBtn').addEventListener('click', async () => { const role = document.getElementById('e-role').value.trim(); if (!role) { toast('Role required', 'error'); return; } const payload = { role, company: document.getElementById('e-company').value.trim(), period: document.getElementById('e-period').value.trim(), description: document.getElementById('e-desc').value.trim(), display_order: parseInt(document.getElementById('e-order').value) || 0 }; const { error } = expEditing ? await sb.from('experience').update(payload).eq('id', expEditing) : await sb.from('experience').insert(payload); if (error) { toast('Error: ' + error.message, 'error'); return; } toast('Experience saved', 'success'); closeModal('expModal'); loadExpTable(); loadDashboard(); });
+
+// ── SKILLS ──
+let skillEditing = null;
+async function loadSkillsTable() {
+  const { data } = await sb.from('skills').select('*').order('display_order');
+  const tb = document.getElementById('skillsTable');
+  if (!data?.length) { tb.innerHTML = '<tr><td colspan="5" style="text-align:center;color:var(--muted);padding:40px">No skills yet.</td></tr>'; return; }
+  tb.innerHTML = data.map(s => `<tr><td style="font-size:20px">${s.icon || '⚙'}</td><td class="td-title">${s.name}</td><td>${(s.tags || []).slice(0, 3).map(t => `<span class="td-cat" style="margin-right:4px">${t}</span>`).join('')}</td><td class="td-date">${s.display_order || '—'}</td><td><div class="td-actions"><button class="btn btn-ghost btn-sm" onclick="editSkill('${s.id}')">Edit</button><button class="btn btn-danger btn-sm" onclick="deleteRow('skills','${s.id}',loadSkillsTable)">Del</button></div></td></tr>`).join('');
+}
+document.getElementById('newSkillBtn').addEventListener('click', () => { skillEditing = null; document.getElementById('skillModalTitle').textContent = 'New Skill'; ['s-icon', 's-name', 's-desc'].forEach(id => document.getElementById(id).value = ''); document.getElementById('s-order').value = ''; setTags('s-tags-wrap', []); openModal('skillModal'); });
+async function editSkill(id) { const { data } = await sb.from('skills').select('*').eq('id', id).single(); if (!data) return; skillEditing = id; document.getElementById('skillModalTitle').textContent = 'Edit Skill'; document.getElementById('s-icon').value = data.icon || ''; document.getElementById('s-name').value = data.name || ''; document.getElementById('s-desc').value = data.description || ''; document.getElementById('s-order').value = data.display_order || ''; setTags('s-tags-wrap', data.tags || []); openModal('skillModal'); }
+document.getElementById('saveSkillBtn').addEventListener('click', async () => { const name = document.getElementById('s-name').value.trim(); if (!name) { toast('Name required', 'error'); return; } const payload = { name, icon: document.getElementById('s-icon').value.trim(), description: document.getElementById('s-desc').value.trim(), display_order: parseInt(document.getElementById('s-order').value) || 0, tags: getTags('s-tags-wrap') }; const { error } = skillEditing ? await sb.from('skills').update(payload).eq('id', skillEditing) : await sb.from('skills').insert(payload); if (error) { toast('Error: ' + error.message, 'error'); return; } toast('Skill saved', 'success'); closeModal('skillModal'); loadSkillsTable(); loadDashboard(); });
+
+// ── ACTIVITY ──
+let actEditing = null;
+async function loadActTable() {
+  const { data } = await sb.from('activity').select('*').order('activity_date', { ascending: false });
+  const tb = document.getElementById('actTable');
+  if (!data?.length) { tb.innerHTML = '<tr><td colspan="6" style="text-align:center;color:var(--muted);padding:40px">No activity logged yet.</td></tr>'; return; }
+  const labels = { design: 'Design', fab: 'Fabrication', sim: 'Simulation', custom: 'Update' };
+  tb.innerHTML = data.map(a => `<tr><td><span class="td-cat">${labels[a.type] || a.type}</span></td><td class="td-title" style="max-width:200px">${a.title}</td><td style="color:var(--muted);font-size:11px;max-width:160px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${a.note || '—'}</td><td class="td-date">${new Date(a.activity_date).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })}</td><td>${a.link ? `<a href="${a.link}" target="_blank" style="color:var(--accent2);font-size:11px;text-decoration:none">↗ Link</a>` : '—'}</td><td><div class="td-actions"><button class="btn btn-ghost btn-sm" onclick="editAct('${a.id}')">Edit</button><button class="btn btn-danger btn-sm" onclick="deleteRow('activity','${a.id}',loadActTable)">Del</button></div></td></tr>`).join('');
+}
+document.getElementById('newActBtn').addEventListener('click', () => { actEditing = null; document.getElementById('actModalTitle').textContent = 'Log Activity'; document.getElementById('a-type').value = 'design'; ['a-title', 'a-note', 'a-link'].forEach(id => document.getElementById(id).value = ''); document.getElementById('a-date').value = new Date().toISOString().split('T')[0]; openModal('actModal'); });
+async function editAct(id) { const { data } = await sb.from('activity').select('*').eq('id', id).single(); if (!data) return; actEditing = id; document.getElementById('actModalTitle').textContent = 'Edit Activity'; document.getElementById('a-type').value = data.type || 'design'; document.getElementById('a-title').value = data.title || ''; document.getElementById('a-note').value = data.note || ''; document.getElementById('a-link').value = data.link || ''; document.getElementById('a-date').value = data.activity_date ? data.activity_date.split('T')[0] : new Date().toISOString().split('T')[0]; openModal('actModal'); }
+document.getElementById('saveActBtn').addEventListener('click', async () => { const title = document.getElementById('a-title').value.trim(); if (!title) { toast('Title required', 'error'); return; } const payload = { title, type: document.getElementById('a-type').value, note: document.getElementById('a-note').value.trim() || null, link: document.getElementById('a-link').value.trim() || null, activity_date: document.getElementById('a-date').value || new Date().toISOString().split('T')[0] }; const { error } = actEditing ? await sb.from('activity').update(payload).eq('id', actEditing) : await sb.from('activity').insert(payload); if (error) { toast('Error: ' + error.message, 'error'); return; } toast('Activity saved', 'success'); closeModal('actModal'); loadActTable(); });
+
+// ── STATS ──
+let statEditing = null;
+async function loadStatsTable() {
+  const { data } = await sb.from('stats').select('*');
+  const tb = document.getElementById('statsTable');
+  if (!data?.length) { tb.innerHTML = '<tr><td colspan="5" style="text-align:center;color:var(--muted);padding:40px">No stats yet.</td></tr>'; return; }
+  tb.innerHTML = data.map(s => `<tr><td class="td-title">${s.label}</td><td style="font-family:var(--fh);font-size:18px;font-weight:700;color:${s.color || 'var(--accent)'}">${s.value}</td><td class="td-date">${s.detail || '—'}</td><td><span style="display:inline-block;width:16px;height:16px;border-radius:50%;background:${s.color || 'var(--accent)'}"></span></td><td><div class="td-actions"><button class="btn btn-ghost btn-sm" onclick="editStat('${s.id}')">Edit</button><button class="btn btn-danger btn-sm" onclick="deleteRow('stats','${s.id}',loadStatsTable)">Del</button></div></td></tr>`).join('');
+}
+document.getElementById('newStatBtn').addEventListener('click', () => { statEditing = null; document.getElementById('statModalTitle').textContent = 'New Stat'; ['st-label', 'st-value', 'st-detail', 'st-color'].forEach(id => document.getElementById(id).value = ''); openModal('statModal'); });
+async function editStat(id) { const { data } = await sb.from('stats').select('*').eq('id', id).single(); if (!data) return; statEditing = id; document.getElementById('statModalTitle').textContent = 'Edit Stat'; document.getElementById('st-label').value = data.label || ''; document.getElementById('st-value').value = data.value || ''; document.getElementById('st-detail').value = data.detail || ''; document.getElementById('st-color').value = data.color || ''; openModal('statModal'); }
+document.getElementById('saveStatBtn').addEventListener('click', async () => { const label = document.getElementById('st-label').value.trim(), value = document.getElementById('st-value').value.trim(); if (!label || !value) { toast('Label and value required', 'error'); return; } const payload = { label, value, detail: document.getElementById('st-detail').value.trim(), color: document.getElementById('st-color').value.trim() || null }; const { error } = statEditing ? await sb.from('stats').update(payload).eq('id', statEditing) : await sb.from('stats').insert(payload); if (error) { toast('Error: ' + error.message, 'error'); return; } toast('Stat saved', 'success'); closeModal('statModal'); loadStatsTable(); });
+
+// ── CONTACT ──
+async function loadContactForm() {
+  const { data } = await sb.from('contact').select('*');
+  if (!data) return;
+  data.forEach(r => { const el = document.getElementById('c-' + r.key); if (el) el.value = r.value || ''; });
+}
+document.getElementById('saveContactBtn').addEventListener('click', async () => {
+  for (const key of ['email', 'phone', 'linkedin', 'github', 'twitter', 'other']) {
+    const value = document.getElementById('c-' + key)?.value.trim() || '';
+    await sb.from('contact').upsert({ key, value }, { onConflict: 'key' });
+  }
+  toast('Contact info saved', 'success');
+});
+</script>
+</body>
+</html>
